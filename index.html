@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoreFlex — 4 Haftalık Karın Kası Programı</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --bg: #030303;
+            --surface: #0a0a0a;
+            --surface2: #111;
+            --border: #1a1a1a;
+            --green: #00ff88;
+            --yellow: #ffd700;
+            --orange: #ff6b35;
+            --red: #ff3860;
+            --purple: #b388ff;
+            --text: #e0e0e0;
+            --muted: #555;
+            --radius: 16px;
+            --radius-sm: 10px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Space Grotesk', sans-serif;
+            min-height: 100vh;
+            padding-bottom: 100px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Ambient background glow */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 50% 0%, rgba(0,255,136,0.03) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(179,136,255,0.03) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Header */
+        .header {
+            position: relative;
+            z-index: 1;
+            padding: 40px 20px 30px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--green);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .logo-text {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--green);
+            text-transform: uppercase;
+        }
+
+        .header h1 {
+            font-size: clamp(40px, 8vw, 72px);
+            font-weight: 700;
+            letter-spacing: -2px;
+            line-height: 1;
+            background: linear-gradient(135deg, #fff 0%, #666 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .header-sub {
+            font-size: 13px;
+            color: var(--muted);
+            letter-spacing: 1px;
+            font-weight: 300;
+        }
+
+        /* Progress Ring */
+        .progress-ring {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 20px;
+            padding: 16px 24px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .progress-ring-bar {
+            flex: 1;
+            height: 4px;
+            background: #1a1a1a;
+            border-radius: 99px;
+            overflow: hidden;
+        }
+
+        .progress-ring-fill {
+            height: 100%;
+            background: var(--green);
+            border-radius: 99px;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 0%;
+            box-shadow: 0 0 12px rgba(0,255,136,0.3);
+        }
+
+        .progress-ring-text {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .progress-ring-pct {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--green);
+        }
+
+        /* Tabs */
+        .tabs {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            padding: 8px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            color: var(--muted);
+            cursor: pointer;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .tab-btn.active {
+            background: var(--surface2);
+            color: #fff;
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -9px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 2px;
+            background: var(--green);
+            border-radius: 99px;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        /* Week Selector */
+        .week-selector {
+            display: flex;
+            gap: 8px;
+            margin: 20px 0;
+            overflow-x: auto;
+            padding: 4px 0;
+            scrollbar-width: none;
+        }
+
+        .week-selector::-webkit-scrollbar { display: none; }
+
+        .week-btn {
+            flex-shrink: 0;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            border-radius: 50px;
+            padding: 10px 18px;
+            cursor: pointer;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .week-btn.active {
+            color: #000;
+            font-weight: 700;
+        }
+
+        /* Week Banner */
+        .week-banner {
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .week-banner::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            border-radius: 0 3px 3px 0;
+        }
+
+        .week-banner .icon {
+            font-size: 36px;
+            filter: grayscale(0.3);
+        }
+
+        .week-banner .name {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .week-banner .sub {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 2px;
+            font-weight: 300;
+        }
+
+        /* Day Card */
+        .day-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 12px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .day-card.done {
+            border-color: rgba(0,255,136,0.2);
+            background: #050a07;
+        }
+
+        .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .day-name {
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+        }
+
+        .day-focus {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 3px;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+
+        .done-btn {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            padding: 8px 16px;
+            color: var(--muted);
+            cursor: pointer;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            transition: all 0.3s;
+            letter-spacing: 0.5px;
+        }
+
+        .done-btn:hover {
+            border-color: #444;
+            color: #fff;
+        }
+
+        /* Exercise Row */
+        .exercises {
+            padding: 4px 20px 12px;
+        }
+
+        .exercise-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 0;
+            border-bottom: 1px solid #111;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: var(--radius-sm);
+            margin: 0 -8px;
+            padding-left: 8px;
+            padding-right: 8px;
+        }
+
+        .exercise-row:last-child { border-bottom: none; }
+
+        .exercise-row:hover {
+            background: rgba(255,255,255,0.02);
+        }
+
+        .anim-thumb {
+            flex-shrink: 0;
+            width: 56px;
+            height: 56px;
+            border-radius: var(--radius-sm);
+            background: #080808;
+            border: 1px solid #1a1a1a;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .anim-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .anim-thumb svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .ex-info { flex: 1; min-width: 0; }
+
+        .ex-name {
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: -0.2px;
+        }
+
+        .ex-tip {
+            font-size: 10px;
+            color: #444;
+            margin-top: 3px;
+            font-weight: 400;
+        }
+
+        .ex-sets {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            white-space: nowrap;
+        }
+
+        .ex-arrow {
+            color: #333;
+            font-size: 14px;
+            transition: transform 0.2s;
+        }
+
+        .exercise-row:hover .ex-arrow {
+            transform: translateX(3px);
+            color: #555;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.92);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .modal-overlay.open { display: flex; }
+
+        .modal {
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 20px;
+            width: 92%;
+            max-width: 420px;
+            padding: 24px;
+            position: relative;
+            animation: modalIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #1a1a1a;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover { background: #333; }
+
+        .modal-gif-box {
+            width: 100%;
+            height: 240px;
+            background: #080808;
+            border: 1px solid #1a1a1a;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .modal-gif-box img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .modal-gif-box svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 4px;
+        }
+
+        .modal-sets {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            letter-spacing: -0.3px;
+        }
+
+        .modal-tip {
+            background: #081008;
+            border: 1px solid #0f2a0f;
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 12px;
+            color: #999;
+            line-height: 1.6;
+        }
+
+        /* Tips Section */
+        .tips-section { padding-top: 8px; }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            color: #bbb;
+            line-height: 1.6;
+        }
+
+        .card-title {
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .tip-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 18px;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .tip-num {
+            width: 26px;
+            height: 26px;
+            background: var(--purple);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: #000;
+            flex-shrink: 0;
+        }
+
+        .motivation-box {
+            background: #0a0a14;
+            border: 1px solid #1a1a2e;
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-top: 12px;
+            text-align: center;
+        }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* Circuit SVG specific */
+        .circuit-svg {
+            animation: circuitPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes circuitPulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="logo">
+        <div class="logo-icon">⚡</div>
+        <div class="logo-text">🜲ÜⲘ𝖎ţ Ⲙ0Ď🜲</div>
+    </div>
+    <h1>KARIN KASI<br>PROGRAMI</h1>
+    <p class="header-sub">4 Hafta &nbsp;·&nbsp; Haftada 3 Gün &nbsp;·&nbsp; 20-35 Dakika</p>
+    <div class="progress-ring">
+        <span class="progress-ring-text" id="prog-label">0/12</span>
+        <div class="progress-ring-bar">
+            <div class="progress-ring-fill" id="prog-fill"></div>
+        </div>
+        <span class="progress-ring-pct" id="prog-pct">0%</span>
+    </div>
+</div>
+
+<div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('program',this)">Program</button>
+    <button class="tab-btn" onclick="switchTab('beslenme',this)">Beslenme</button>
+    <button class="tab-btn" onclick="switchTab('ipuclari',this)">İpuçları</button>
+</div>
+
+<div class="container">
+
+<div class="tab-panel active" id="tab-program">
+    <div class="week-selector" id="weekSelector"></div>
+    <div id="weekBanner" class="week-banner"></div>
+    <div id="dayCards"></div>
+</div>
+
+<div class="tab-panel" id="tab-beslenme">
+    <div class="tips-section">
+        <div class="card">
+            <div class="card-title" style="color:var(--green)">🥗 Beslenme Rehberi</div>
+            <p style="color:#666;font-size:12px">Karın kasları mutfakta yapılır. Beslenme düzelmeden altı-pak görünmez.</p>
+        </div>
+        <div class="card">🥚 Her öğünde protein al — yumurta, tavuk, yoğurt</div>
+        <div class="card">💧 Günde en az 2.5 litre su iç</div>
+        <div class="card">🍞 Şekeri ve beyaz unu kes</div>
+        <div class="card">🥗 Her öğüne sebze ekle</div>
+        <div class="card">🌙 Yatmadan 2 saat önce yemeyi bırak</div>
+    </div>
+</div>
+
+<div class="tab-panel" id="tab-ipuclari">
+    <div class="tips-section">
+        <div class="tip-item"><div class="tip-num">1</div><div>Antrenman öncesi 5 dakika ısınma yap</div></div>
+        <div class="tip-item"><div class="tip-num">2</div><div>Her set arası 45-60 saniye dinlen</div></div>
+        <div class="tip-item"><div class="tip-num">3</div><div>Hareketleri kontrollü ve yavaş yap</div></div>
+        <div class="tip-item"><div class="tip-num">4</div><div>Nefes: kasılırken ver, açılırken al</div></div>
+        <div class="tip-item"><div class="tip-num">5</div><div>Uyku en az 7 saat — kas bu sırada yapılır</div></div>
+        <div class="motivation-box">
+            <div style="font-size:28px;margin-bottom:8px">🎯</div>
+            <div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:6px">1 Ay Boyunca Tutarlı Ol</div>
+            <div style="font-size:12px;color:#555;line-height:1.7">Mükemmel antrenman değil, <span style="color:var(--purple)">sürekli antrenman</span> kazandırır.</div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+    <div class="modal">
+        <button class="modal-close" onclick="closeModal()">✕</button>
+        <div class="modal-gif-box" id="modalGifBox"></div>
+        <div class="modal-title" id="modalTitle"></div>
+        <div class="modal-sets" id="modalSets"></div>
+        <div class="modal-tip" id="modalTip" style="display:none"></div>
+    </div>
+</div>
+
+<script>
+// GIF URL'leri
+var gifUrls = {
+    crunch: 'https://media.tenor.com/8qDTgIQE_PcAAAAM/vvbvcx.gif',
+    plank: 'https://media.tenor.com/7O6JimICFLoAAAAM/plank.gif',
+    legRaise: 'https://i.pinimg.com/originals/0d/04/cd/0d04cd163b79a0ddf3fcac013997d716.gif',
+    reverseCrunch: 'https://media.tenor.com/a6e_-JLG3GEAAAAM/abdminal.gif',
+    mountainClimber: 'https://i.pinimg.com/originals/a5/f6/55/a5f6556329ff8d9f9dd71f0dd6ae1355.gif',
+    deadBug: 'https://hw.qld.gov.au/wp-content/uploads/2015/07/29_M_WIP02.gif',
+    bicycleCrunch: 'https://media.tenor.com/Jopm0JiwtdsAAAAM/egsersiz.gif',
+    sidePlank: 'https://www.vissco.com/wp-content/uploads/animation/sub/side-plank-on-elbow.gif',
+    russianTwist: 'https://i.pinimg.com/originals/b7/a2/db/b7a2dbe8fe0ce1f193e143fae03d3c71.gif',
+    vUp: 'https://i.pinimg.com/originals/f6/b4/73/f6b473b9483086c85493df5ac0b0e706.gif',
+    circuit: ''
+};
+
+// Circuit için özel SVG
+function getCircuitSvg(size) {
+    var s = size || 56;
+    return '<svg class="circuit-svg" width="' + s + '" height="' + s + '" viewBox="0 0 100 100" fill="none">' +
+        '<rect width="100" height="100" rx="8" fill="#080808"/>' +
+        '<defs>' +
+        '<linearGradient id="cg" x1="0" y1="0" x2="100" y2="100">' +
+        '<stop offset="0%" stop-color="#00ff88"/>' +
+        '<stop offset="50%" stop-color="#ffd700"/>' +
+        '<stop offset="100%" stop-color="#ff3860"/>' +
+        '</linearGradient>' +
+        '</defs>' +
+        '<circle cx="50" cy="50" r="38" stroke="url(#cg)" stroke-width="2" stroke-dasharray="8 6" opacity="0.6">' +
+        '<animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="8s" repeatCount="indefinite"/>' +
+        '</circle>' +
+        '<circle cx="50" cy="50" r="28" stroke="url(#cg)" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.4">' +
+        '<animateTransform attributeName="transform" type="rotate" from="360 50 50" to="0 50 50" dur="6s" repeatCount="indefinite"/>' +
+        '</circle>' +
+        '<circle cx="50" cy="50" r="18" stroke="#333" stroke-width="1" stroke-dasharray="3 4" opacity="0.5">' +
+        '<animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="10s" repeatCount="indefinite"/>' +
+        '</circle>' +
+        '<circle cx="50" cy="50" r="4" fill="#00ff88">' +
+        '<animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite"/>' +
+        '</circle>' +
+        '<text x="50" y="47" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="Space Grotesk, sans-serif">DEVRE</text>' +
+        '<text x="50" y="56" text-anchor="middle" fill="#555" font-size="6" font-family="Space Grotesk, sans-serif">ANTRENMANI</text>' +
+        '</svg>';
+}
+
+function getThumbHtml(type) {
+    if (type === 'circuit') return getCircuitSvg(56);
+    if (gifUrls[type] && gifUrls[type].length > 5) {
+        return '<img src="' + gifUrls[type] + '" alt="">';
+    }
+    return '<div style="color:#444;font-size:9px;text-align:center;font-weight:500">' + type.toUpperCase() + '</div>';
+}
+
+function getModalHtml(type) {
+    if (type === 'circuit') return getCircuitSvg(240);
+    if (gifUrls[type] && gifUrls[type].length > 5) {
+        return '<img src="' + gifUrls[type] + '" alt="" style="max-width:100%;max-height:100%;object-fit:contain">';
+    }
+    return '<div style="color:#444;text-align:center;font-weight:500">GIF yüklenemedi</div>';
+}
+
+// Veri
+var weeks = [
+    { week:1, title:"Temel & Aktivasyon", subtitle:"Kasları uyandır", color:"#00ff88", icon:"🌱", days:[
+        { day:"Pazartesi", focus:"Üst Karın", exercises:[
+            { name:"Crunch", sets:"3 x 15", tip:"Boynu zorlama, gözlerin tavana baksın", anim:"crunch" },
+            { name:"Plank", sets:"3 x 20sn", tip:"Kalçan ne yukarı ne aşağı", anim:"plank" },
+            { name:"Leg Raise", sets:"3 x 10", tip:"Beli yere bastır", anim:"legRaise" }
+        ]},
+        { day:"Çarşamba", focus:"Alt Karın", exercises:[
+            { name:"Reverse Crunch", sets:"3 x 12", tip:"Kalçayı yerden kaldır", anim:"reverseCrunch" },
+            { name:"Mountain Climber", sets:"3 x 20sn", tip:"Yavaş ve kontrollü", anim:"mountainClimber" },
+            { name:"Dead Bug", sets:"3 x 8/taraf", tip:"Bel yerde sabit kalsın", anim:"deadBug" }
+        ]},
+        { day:"Cuma", focus:"Yan & Oblik", exercises:[
+            { name:"Bicycle Crunch", sets:"3 x 16", tip:"Dirsek diz buluşsun", anim:"bicycleCrunch" },
+            { name:"Side Plank", sets:"3 x 15sn", tip:"Kalça düşmesin", anim:"sidePlank" },
+            { name:"Russian Twist", sets:"3 x 20", tip:"Ayaklar yerden biraz yukarı", anim:"russianTwist" }
+        ]}
+    ]},
+    { week:2, title:"Yüklenme", subtitle:"Yoğunluğu artır", color:"#ffd700", icon:"💪", days:[
+        { day:"Pazartesi", focus:"Üst + Alt", exercises:[
+            { name:"Crunch", sets:"4 x 20", tip:"", anim:"crunch" },
+            { name:"Leg Raise", sets:"4 x 12", tip:"", anim:"legRaise" },
+            { name:"Plank", sets:"3 x 30sn", tip:"", anim:"plank" }
+        ]},
+        { day:"Çarşamba", focus:"Tam Karın", exercises:[
+            { name:"V-Up", sets:"3 x 12", tip:"Eller ve ayaklar ortada buluşsun", anim:"vUp" },
+            { name:"Bicycle Crunch", sets:"4 x 20", tip:"", anim:"bicycleCrunch" },
+            { name:"Mountain Climber", sets:"3 x 30sn", tip:"", anim:"mountainClimber" }
+        ]},
+        { day:"Cuma", focus:"Güç & Dayanıklılık", exercises:[
+            { name:"Plank + Yan Plank", sets:"3 x 40sn", tip:"Aralarında 5sn ara", anim:"plank" },
+            { name:"Russian Twist", sets:"4 x 24", tip:"", anim:"russianTwist" },
+            { name:"Dead Bug", sets:"3 x 10/taraf", tip:"", anim:"deadBug" }
+        ]}
+    ]},
+    { week:3, title:"Yoğunluk", subtitle:"Gerçek zorluk başlıyor", color:"#ff6b35", icon:"🔥", days:[
+        { day:"Pazartesi", focus:"Süper Set", exercises:[
+            { name:"Crunch + Reverse Crunch", sets:"4 x 15+15", tip:"Ara vermeden yap", anim:"crunch" },
+            { name:"Plank", sets:"4 x 45sn", tip:"", anim:"plank" },
+            { name:"Leg Raise", sets:"4 x 15", tip:"", anim:"legRaise" }
+        ]},
+        { day:"Çarşamba", focus:"Oblik Derinleştirme", exercises:[
+            { name:"Bicycle Crunch", sets:"4 x 30", tip:"", anim:"bicycleCrunch" },
+            { name:"Side Plank + Kalça", sets:"3 x 12/taraf", tip:"", anim:"sidePlank" },
+            { name:"V-Up", sets:"4 x 15", tip:"", anim:"vUp" }
+        ]},
+        { day:"Cuma", focus:"Dayanıklılık Devresi", exercises:[
+            { name:"6 Hareket 40sn/15sn", sets:"2 Tur", tip:"Crunch → Leg Raise → Plank → Bicycle → Russian Twist", anim:"circuit" }
+        ]}
+    ]},
+    { week:4, title:"Zirve", subtitle:"Her şeyi ver", color:"#ff3860", icon:"⚡", days:[
+        { day:"Pazartesi", focus:"Maksimum Çıkış", exercises:[
+            { name:"Crunch", sets:"5 x 25", tip:"", anim:"crunch" },
+            { name:"V-Up", sets:"4 x 20", tip:"", anim:"vUp" },
+            { name:"Plank", sets:"4 x 60sn", tip:"", anim:"plank" }
+        ]},
+        { day:"Çarşamba", focus:"Tam Devre", exercises:[
+            { name:"6 Hareket 45sn/15sn", sets:"3 Tur", tip:"Crunch → Rev. Crunch → Bicycle → Side Plank → Mt Climber → V-Up", anim:"circuit" }
+        ]},
+        { day:"Cuma", focus:"Final", exercises:[
+            { name:"Crunch Testi", sets:"1 x Maks", tip:"Ne kadar yapabildiğini gör", anim:"crunch" },
+            { name:"Plank Testi", sets:"1 x Maks Süre", tip:"Formunu bozmadan dur", anim:"plank" },
+            { name:"Her Egzersiz 1 Set", sets:"1 x 20", tip:"Ayın finalini hisset", anim:"vUp" }
+        ]}
+    ]}
+];
+
+var activeWeek = 0;
+var completedDays = {};
+try { completedDays = JSON.parse(localStorage.getItem('coreflex_done') || '{}'); } catch(e) { completedDays = {}; }
+var TOTAL = 12;
+
+function saveState() { localStorage.setItem('coreflex_done', JSON.stringify(completedDays)); }
+function countDone() { var n=0; for(var k in completedDays){ if(completedDays[k]) n++; } return n; }
+
+function updateProgress() {
+    var n = countDone();
+    var pct = Math.round((n/TOTAL)*100);
+    document.getElementById('prog-label').textContent = n + '/12';
+    document.getElementById('prog-pct').textContent = pct + '%';
+    document.getElementById('prog-fill').style.width = pct + '%';
+}
+
+function renderWeekSelector() {
+    var el = document.getElementById('weekSelector');
+    var html = '';
+    for (var i=0; i<weeks.length; i++) {
+        var w = weeks[i];
+        var act = i===activeWeek;
+        html += '<button class="week-btn' + (act?' active':'') + '" style="' + (act?'background:'+w.color+';border-color:'+w.color+';color:#000;':'') + '" onclick="setWeek('+i+')">Hafta '+(i+1)+'</button>';
+    }
+    el.innerHTML = html;
+}
+
+function renderWeekBanner() {
+    var w = weeks[activeWeek];
+    var el = document.getElementById('weekBanner');
+    el.querySelector('.week-banner::before')?.remove?.();
+    el.style.setProperty('--banner-color', w.color);
+    el.innerHTML = '<div class="icon">'+w.icon+'</div><div><div class="name" style="color:'+w.color+'">'+w.title+'</div><div class="sub">'+w.subtitle+'</div></div>';
+    el.style.borderLeftColor = w.color;
+    el.style.borderLeftWidth = '3px';
+    el.style.borderLeftStyle = 'solid';
+}
+
+function renderDays() {
+    var w = weeks[activeWeek];
+    var el = document.getElementById('dayCards');
+    var html = '';
+    for (var di=0; di<w.days.length; di++) {
+        var d = w.days[di];
+        var key = activeWeek+'-'+di;
+        var done = !!completedDays[key];
+        html += '<div class="day-card'+(done?' done':'')+'">';
+        html += '<div class="day-header"><div><div class="day-name" style="color:'+(done?w.color:'#fff')+'">'+d.day+'</div><div class="day-focus">'+d.focus+'</div></div>';
+        html += '<button class="done-btn" style="'+(done?'background:'+w.color+';color:#000;border-color:'+w.color:'')+'" onclick="event.stopPropagation();toggleDay('+activeWeek+','+di+')">'+(done?'✓ Tamam':'Yaptım')+'</button>';
+        html += '</div><div class="exercises">';
+        for (var ei=0; ei<d.exercises.length; ei++) {
+            var ex = d.exercises[ei];
+            html += '<div class="exercise-row" onclick="openModal('+activeWeek+','+di+','+ei+')">';
+            html += '<div class="anim-thumb">'+getThumbHtml(ex.anim)+'</div>';
+            html += '<div class="ex-info"><div class="ex-name">'+ex.name+'</div>';
+            if (ex.tip) html += '<div class="ex-tip">💬 '+ex.tip+'</div>';
+            html += '</div><div class="ex-sets" style="color:'+w.color+'">'+ex.sets+'</div>';
+            html += '<div class="ex-arrow">→</div></div>';
+        }
+        html += '</div></div>';
+    }
+    el.innerHTML = html;
+}
+
+function render() { renderWeekSelector(); renderWeekBanner(); renderDays(); updateProgress(); }
+function setWeek(i) { activeWeek=i; render(); }
+function toggleDay(wi,di) { var key=wi+'-'+di; completedDays[key]=!completedDays[key]; saveState(); render(); }
+
+function openModal(wi,di,ei) {
+    var ex = weeks[wi].days[di].exercises[ei];
+    var color = weeks[wi].color;
+    document.getElementById('modalGifBox').innerHTML = getModalHtml(ex.anim);
+    document.getElementById('modalTitle').textContent = ex.name;
+    document.getElementById('modalTitle').style.color = color;
+    document.getElementById('modalSets').textContent = ex.sets;
+    document.getElementById('modalSets').style.color = color;
+    var tipEl = document.getElementById('modalTip');
+    if (ex.tip) { tipEl.textContent = '💬 ' + ex.tip; tipEl.style.display = 'block'; }
+    else { tipEl.style.display = 'none'; }
+    document.getElementById('modal').classList.add('open');
+}
+
+function closeModal(e) {
+    if (!e || e.target.id==='modal' || e.target.classList.contains('modal-close')) {
+        document.getElementById('modal').classList.remove('open');
+    }
+}
+
+function switchTab(name, btn) {
+    var ps = document.querySelectorAll('.tab-panel');
+    for (var i=0; i<ps.length; i++) ps[i].classList.remove('active');
+    var bs = document.querySelectorAll('.tab-btn');
+    for (var i=0; i<bs.length; i++) bs[i].classList.remove('active');
+    document.getElementById('tab-'+name).classList.add('active');
+    btn.classList.add('active');
+}
+
+render();
+</script>
+</body>
+</html>
